@@ -1,29 +1,29 @@
 import { AggregatedResult, TestResult } from "@jest/test-result";
 import { Circus, Config } from "@jest/types";
 
-import htmlreporter from "./htmlreporter";
+import markdownreporter from "./markdown-reporter";
 import {
-  IJestHTMLReporterConfigOptions,
-  IJestHTMLReporterConsole,
-  JestHTMLReporterProps,
+  JestMarkdownReporterConfigurationOptions,
+  JestMarkdownReporterConsole,
+  JestMarkdownReporterProps,
 } from "./types";
 
 /**
- * Setup Jest HTML Reporter and generate a report with the given data
+ * Setup Jest Markdown Reporter and generate a report with the given data
  */
-const setupAndRun = (data: JestHTMLReporterProps) => {
-  const reporter = new htmlreporter(data);
+const setupAndRun = (data: JestMarkdownReporterProps) => {
+  const reporter = new markdownreporter(data);
   return reporter.generate();
 };
 
 /**
  * The test runner function passed to Jest
  */
-function JestHtmlReporter(
+function JestMarkdownReporter(
   globalConfig: Config.GlobalConfig | AggregatedResult,
-  options: IJestHTMLReporterConfigOptions
+  options: JestMarkdownReporterConfigurationOptions
 ): Promise<Circus.TestResult> | Config.GlobalConfig | AggregatedResult {
-  const consoleLogs: IJestHTMLReporterConsole[] = [];
+  const consoleLogs: JestMarkdownReporterConsole[] = [];
 
   /**
    * If the first parameter has a property named 'testResults',
@@ -66,4 +66,4 @@ function JestHtmlReporter(
     });
 }
 
-export default JestHtmlReporter;
+export default JestMarkdownReporter;

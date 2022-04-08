@@ -5,24 +5,24 @@ import fs from "fs";
 import mkdirp from "mkdirp";
 import path from "path";
 import {
-  IJestHTMLReporterConfig,
-  IJestHTMLReporterConfigOptions,
-  IJestHTMLReporterConsole,
-  JestHTMLReporterProps,
-  JestHTMLReporterSortType,
+  JestMarkdownReporterConfig,
+  JestMarkdownReporterConfigurationOptions,
+  JestMarkdownReporterConsole,
+  JestMarkdownReporterProps,
+  JestMarkdownReporterSortType,
 } from "src/types";
 import stripAnsi from "strip-ansi";
 import xmlbuilder, { XMLElement } from "xmlbuilder";
 
 import sorting from "./sorting";
 
-class HTMLReporter {
+class MarkdownReporter {
   public testData: AggregatedResult;
-  public consoleLogList: IJestHTMLReporterConsole[];
+  public consoleLogList: JestMarkdownReporterConsole[];
   public jestConfig: Config.GlobalConfig;
-  public config: IJestHTMLReporterConfig;
+  public config: JestMarkdownReporterConfig;
 
-  constructor(data: JestHTMLReporterProps) {
+  constructor(data: JestMarkdownReporterProps) {
     this.testData = data.testData;
     this.jestConfig = data.jestConfig;
     this.consoleLogList = data.consoleLogs;
@@ -64,7 +64,7 @@ class HTMLReporter {
         "utf8"
       );
       return boilerplateContent.replace(
-        "{jesthtmlreporter-content}",
+        "{jestmarkdownreporter-content}",
         reportContent && reportContent.toString()
       );
     }
@@ -77,44 +77,10 @@ class HTMLReporter {
     headTag.ele("meta", { charset: "utf-8" });
     headTag.ele("title", {}, this.getConfigValue("pageTitle"));
 
-    // Default to the currently set theme
-    let stylesheetFilePath: string = path.join(
-      __dirname,
-      `../style/${this.getConfigValue("theme")}.css`
-    );
-    // Overriding stylesheet
-    if (this.getConfigValue("styleOverridePath")) {
-      stylesheetFilePath = this.getConfigValue("styleOverridePath") as string;
-    }
-    // Decide whether to inline the CSS or not
-    const inlineCSS: boolean =
-      !this.getConfigValue("useCssFile") &&
-      !!!this.getConfigValue("styleOverridePath");
-
-    if (inlineCSS) {
-      const stylesheetContent = await fs.readFileSync(
-        stylesheetFilePath,
-        "utf8"
-      );
-      headTag.raw(`<style type="text/css">${stylesheetContent}</style>`);
-    } else {
-      headTag.ele("link", {
-        rel: "stylesheet",
-        type: "text/css",
-        href: stylesheetFilePath,
-      });
-    }
-
     const reportBody = report.ele("body");
     // Add the test report to the body
     if (reportContent) {
       reportBody.raw(reportContent.toString());
-    }
-    // Add any given custom script to the end of the body
-    if (!!this.getConfigValue("customScriptPath")) {
-      reportBody.raw(
-        `<script src="${this.getConfigValue("customScriptPath")}"></script>`
-      );
     }
     return report;
   }
@@ -307,7 +273,7 @@ class HTMLReporter {
        */
       const sortedTestResults = sorting(
         this.testData.testResults,
-        this.getConfigValue("sort") as JestHTMLReporterSortType
+        this.getConfigValue("sort") as JestMarkdownReporterSortType
       );
 
       /**
@@ -497,13 +463,12 @@ class HTMLReporter {
    * Fetch and setup configuration
    */
   public setupConfig(
-    options: IJestHTMLReporterConfigOptions
-  ): IJestHTMLReporterConfig {
+    options: JestMarkdownReporterConfigurationOptions
+  ): JestMarkdownReporterConfig {
     // Extract config values and make sure that the config object actually exist
     const {
       append,
       boilerplate,
-      customScriptPath,
       dateFormat,
       executionTimeWarningThreshold,
       logo,
@@ -513,112 +478,95 @@ class HTMLReporter {
       includeObsoleteSnapshots,
       outputPath,
       pageTitle,
-      theme,
       sort,
       statusIgnoreFilter,
       styleOverridePath,
-      useCssFile,
     } = options || {};
 
     this.config = {
       append: {
         defaultValue: false,
-        environmentVariable: "JEST_HTML_REPORTER_APPEND",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_APPEND",
         configValue: append,
       },
       boilerplate: {
         defaultValue: null,
-        environmentVariable: "JEST_HTML_REPORTER_BOILERPLATE",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_BOILERPLATE",
         configValue: boilerplate,
-      },
-      customScriptPath: {
-        defaultValue: null,
-        environmentVariable: "JEST_HTML_REPORTER_CUSTOM_SCRIPT_PATH",
-        configValue: customScriptPath,
       },
       dateFormat: {
         defaultValue: "yyyy-mm-dd HH:MM:ss",
-        environmentVariable: "JEST_HTML_REPORTER_DATE_FORMAT",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_DATE_FORMAT",
         configValue: dateFormat,
       },
       executionTimeWarningThreshold: {
         defaultValue: 5,
         environmentVariable:
-          "JEST_HTML_REPORTER_EXECUTION_TIME_WARNING_THRESHOLD",
+          "JEST_MARKDOWN_REPORTER_EXECUTION_TIME_WARNING_THRESHOLD",
         configValue: executionTimeWarningThreshold,
       },
       logo: {
         defaultValue: null,
-        environmentVariable: "JEST_HTML_REPORTER_LOGO",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_LOGO",
         configValue: logo,
       },
       includeFailureMsg: {
         defaultValue: false,
-        environmentVariable: "JEST_HTML_REPORTER_INCLUDE_FAILURE_MSG",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_INCLUDE_FAILURE_MSG",
         configValue: includeFailureMsg,
       },
       includeSuiteFailure: {
         defaultValue: false,
-        environmentVariable: "JEST_HTML_REPORTER_INCLUDE_SUITE_FAILURE",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_INCLUDE_SUITE_FAILURE",
         configValue: includeSuiteFailure,
       },
       includeObsoleteSnapshots: {
         defaultValue: false,
-        environmentVariable: "JEST_HTML_REPORTER_INCLUDE_OBSOLETE_SNAPSHOTS",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_INCLUDE_OBSOLETE_SNAPSHOTS",
         configValue: includeObsoleteSnapshots,
       },
       includeConsoleLog: {
         defaultValue: false,
-        environmentVariable: "JEST_HTML_REPORTER_INCLUDE_CONSOLE_LOG",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_INCLUDE_CONSOLE_LOG",
         configValue: includeConsoleLog,
       },
       outputPath: {
         defaultValue: path.join(process.cwd(), "test-report.html"),
-        environmentVariable: "JEST_HTML_REPORTER_OUTPUT_PATH",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_OUTPUT_PATH",
         configValue: outputPath,
       },
       pageTitle: {
         defaultValue: "Test Report",
-        environmentVariable: "JEST_HTML_REPORTER_PAGE_TITLE",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_PAGE_TITLE",
         configValue: pageTitle,
-      },
-      theme: {
-        defaultValue: "defaultTheme",
-        environmentVariable: "JEST_HTML_REPORTER_THEME",
-        configValue: theme,
       },
       sort: {
         defaultValue: null,
-        environmentVariable: "JEST_HTML_REPORTER_SORT",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_SORT",
         configValue: sort,
       },
       statusIgnoreFilter: {
         defaultValue: null,
-        environmentVariable: "JEST_HTML_REPORTER_STATUS_FILTER",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_STATUS_FILTER",
         configValue: statusIgnoreFilter,
       },
       styleOverridePath: {
         defaultValue: null,
-        environmentVariable: "JEST_HTML_REPORTER_STYLE_OVERRIDE_PATH",
+        environmentVariable: "JEST_MARKDOWN_REPORTER_STYLE_OVERRIDE_PATH",
         configValue: styleOverridePath,
       },
-      useCssFile: {
-        defaultValue: false,
-        environmentVariable: "JEST_HTML_REPORTER_USE_CSS_FILE",
-        configValue: useCssFile,
-      },
     };
-    // Attempt to collect and assign config settings from jesthtmlreporter.config.json
+    // Attempt to collect and assign config settings from jestmarkdownreporter.config.json
     try {
-      const jesthtmlreporterconfig = fs.readFileSync(
-        path.join(process.cwd(), "jesthtmlreporter.config.json"),
+      const jestmarkdownreporterconfig = fs.readFileSync(
+        path.join(process.cwd(), "jestmarkdownreporter.config.json"),
         "utf8"
       );
-      if (jesthtmlreporterconfig) {
-        const parsedConfig = JSON.parse(jesthtmlreporterconfig);
+      if (jestmarkdownreporterconfig) {
+        const parsedConfig = JSON.parse(jestmarkdownreporterconfig);
         for (const key of Object.keys(parsedConfig)) {
-          if (this.config[key as keyof IJestHTMLReporterConfig]) {
-            this.config[key as keyof IJestHTMLReporterConfig].configValue =
+          if (this.config[key as keyof JestMarkdownReporterConfig]) {
+            this.config[key as keyof JestMarkdownReporterConfig].configValue =
               parsedConfig[key];
           }
         }
@@ -634,10 +582,10 @@ class HTMLReporter {
         "utf8"
       );
       if (packageJson) {
-        const parsedConfig = JSON.parse(packageJson)["jest-html-reporter"];
+        const parsedConfig = JSON.parse(packageJson)["jest-markdown-reporter"];
         for (const key of Object.keys(parsedConfig)) {
-          if (this.config[key as keyof IJestHTMLReporterConfig]) {
-            this.config[key as keyof IJestHTMLReporterConfig].configValue =
+          if (this.config[key as keyof JestMarkdownReporterConfig]) {
+            this.config[key as keyof JestMarkdownReporterConfig].configValue =
               parsedConfig[key];
           }
         }
@@ -653,7 +601,7 @@ class HTMLReporter {
    * Environment Variable > JSON configured value > Default value
    * @param key
    */
-  public getConfigValue(key: keyof IJestHTMLReporterConfig) {
+  public getConfigValue(key: keyof JestMarkdownReporterConfig) {
     const option = this.config[key];
     if (!option) {
       return;
@@ -753,4 +701,4 @@ class HTMLReporter {
   }
 }
 
-export default HTMLReporter;
+export default MarkdownReporter;

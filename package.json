@@ -1,7 +1,7 @@
 {
-  "name": "jest-html-reporter",
-  "version": "3.4.2",
-  "description": "Jest test results processor for generating a summary in HTML",
+  "name": "jest-markdown-reporter",
+  "version": "0.0.1",
+  "description": "Jest test results processor for generating a summary in Markdown",
   "main": "dist/index.js",
   "unpkg": "dist/index.js",
   "files": [
@@ -18,21 +18,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Hargne/jest-html-reporter.git"
+    "url": "git+https://github.com/iansan5653/jest-markdown-reporter.git"
   },
   "keywords": [
     "jest",
-    "html",
+    "markdown",
     "reporter",
     "report",
     "plugin"
   ],
-  "author": "Johan Hargne",
+  "author": "Ian Sanders",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Hargne/jest-html-reporter/issues"
+    "url": "https://github.com/iansan5653/jest-markdown-reporter/issues"
   },
-  "homepage": "https://github.com/Hargne/jest-html-reporter#readme",
+  "homepage": "https://github.com/iansan5653/jest-markdown-reporter#readme",
   "engines": {
     "node": ">=4.8.3"
   },

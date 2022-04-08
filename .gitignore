@@ -3,5 +3,5 @@ npm-debug.log
 node_modules/
 test-report/
 dist/
-test-report.html
-testResultsProcessorResult.html
+test-report.md
+testResultsProcessorResult.md

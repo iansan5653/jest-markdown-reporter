@@ -1,9 +1,9 @@
 import { AggregatedResult, AssertionResult } from "@jest/test-result";
-import { JestHTMLReporterSortType } from "src/types";
+import { JestMarkdownReporterSortType } from "src/types";
 
 export default (
   testResults: AggregatedResult["testResults"],
-  sortType?: JestHTMLReporterSortType
+  sortType?: JestMarkdownReporterSortType
 ): AggregatedResult["testResults"] => {
   const sortTypeLowercase = sortType && sortType.toLowerCase();
   switch (sortTypeLowercase) {

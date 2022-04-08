@@ -1,18 +1,18 @@
 import fs from "fs";
 
-import HTMLReporter from "../src/htmlreporter";
+import MarkdownReporter from "../src/markdown-reporter";
 import {
   mockedJestResponseMultipleTestResult,
   mockedJestResponseSingleTestResult,
 } from "./mockdata";
 
-describe("HTMLReporter", () => {
+describe("MarkdownReporter", () => {
   describe("generate", () => {
     it("should be able to generate a HTML report", async () => {
       const mockedFS = jest.spyOn(fs, "writeFileSync");
       mockedFS.mockImplementation();
 
-      const reporter = new HTMLReporter({
+      const reporter = new MarkdownReporter({
         testData: mockedJestResponseSingleTestResult,
         options: {},
       });
@@ -27,15 +27,15 @@ describe("HTMLReporter", () => {
     it("should cast an error if no test data was provided", async () => {
       expect.assertions(1);
       // @ts-ignore
-      const reporter = new HTMLReporter({}, {});
+      const reporter = new MarkdownReporter({}, {});
       expect(await reporter.renderTestReportContent()).toBeUndefined();
     });
   });
 
   describe("getConfigValue", () => {
     it("should return configured environment variable", async () => {
-      process.env.JEST_HTML_REPORTER_LOGO = "logoFromEnv.png";
-      const reporter = new HTMLReporter({
+      process.env.JEST_MARKDOWN_REPORTER_LOGO = "logoFromEnv.png";
+      const reporter = new MarkdownReporter({
         testData: mockedJestResponseSingleTestResult,
         options: {},
       });
@@ -46,7 +46,7 @@ describe("HTMLReporter", () => {
       expect(
         reportContent.indexOf('<img id="logo" src="logoFromEnv.png"/>')
       ).toBeGreaterThan(-1);
-      delete process.env.JEST_HTML_REPORTER_LOGO;
+      delete process.env.JEST_MARKDOWN_REPORTER_LOGO;
     });
   });
 
@@ -71,28 +71,9 @@ describe("HTMLReporter", () => {
     });
     */
 
-    describe("styleOverridePath", () => {
-      it("should insert a link to the overriding stylesheet path", async () => {
-        const reporter = new HTMLReporter({
-          testData: mockedJestResponseSingleTestResult,
-          options: {
-            styleOverridePath: "path/to/style.css",
-          },
-        });
-        const report = await reporter.renderTestReport();
-        expect(
-          report
-            .toString()
-            .indexOf(
-              '<link rel="stylesheet" type="text/css" href="path/to/style.css"/>'
-            ) !== -1
-        ).toBeTruthy();
-      });
-    });
-
     describe("includeConsoleLog", () => {
       it("should add found console.logs to the report if includeConsoleLog is set", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseSingleTestResult,
           options: {
             includeConsoleLog: true,
@@ -122,7 +103,7 @@ describe("HTMLReporter", () => {
       });
 
       it("should not add any console.logs to the report if includeConsoleLog is false", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseSingleTestResult,
           options: {},
           consoleLogs: [
@@ -152,7 +133,7 @@ describe("HTMLReporter", () => {
 
     describe("statusIgnoreFilter", () => {
       it("should remove tests with the specified status", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseMultipleTestResult,
           options: {
             statusIgnoreFilter: "passed",
@@ -168,7 +149,7 @@ describe("HTMLReporter", () => {
 
     describe("includeFailureMsg", () => {
       it("should include failure messages", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseMultipleTestResult,
           options: {
             includeFailureMsg: true,
@@ -186,7 +167,7 @@ describe("HTMLReporter", () => {
 
     describe("includeSuiteFailure", () => {
       it("should include suite failure message", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseMultipleTestResult,
           options: {
             includeSuiteFailure: true,
@@ -204,7 +185,7 @@ describe("HTMLReporter", () => {
 
     describe("includeObsoleteSnapshots", () => {
       it("should include obsolete snapshots", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseMultipleTestResult,
           options: {
             includeObsoleteSnapshots: true,
@@ -225,7 +206,7 @@ describe("HTMLReporter", () => {
 
     describe("logo", () => {
       it("should add a logo to the report", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseSingleTestResult,
           options: {
             logo: "logo.png",
@@ -241,25 +222,9 @@ describe("HTMLReporter", () => {
       });
     });
 
-    describe("customScriptPath", () => {
-      it("should add assigned custom script path to the report", async () => {
-        const reporter = new HTMLReporter({
-          testData: mockedJestResponseSingleTestResult,
-          options: {
-            customScriptPath: "path/to/script.js",
-          },
-        });
-        const report = (await reporter.renderTestReport()).toString();
-
-        expect(
-          report.indexOf('<script src="path/to/script.js"></script>')
-        ).toBeGreaterThan(-1);
-      });
-    });
-
     describe("pageTitle", () => {
       it("should add the given string as a title tag", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseSingleTestResult,
           options: {
             pageTitle: "My Report",
@@ -276,7 +241,7 @@ describe("HTMLReporter", () => {
 
     describe("executionTimeWarningThreshold", () => {
       it("should mark tests that have surpassed the threshold", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseSingleTestResult,
           options: {
             executionTimeWarningThreshold: 0.00001,
@@ -292,7 +257,7 @@ describe("HTMLReporter", () => {
 
     describe("dateFormat", () => {
       it("should format the date in the given format", async () => {
-        const reporter = new HTMLReporter({
+        const reporter = new MarkdownReporter({
           testData: mockedJestResponseSingleTestResult,
           options: {
             dateFormat: "yyyy",
@@ -309,7 +274,7 @@ describe("HTMLReporter", () => {
 
   describe("setupConfig", () => {
     it("should return default value if no options were provided", async () => {
-      const reporter = new HTMLReporter({
+      const reporter = new MarkdownReporter({
         testData: mockedJestResponseSingleTestResult,
         options: {},
       });
@@ -321,13 +286,13 @@ describe("HTMLReporter", () => {
 
   describe("replaceRootDirInPath", () => {
     it("should replace <rootDir> in the given path", () => {
-      const reporter = new HTMLReporter({
+      const reporter = new MarkdownReporter({
         testData: mockedJestResponseSingleTestResult,
         options: {},
       });
       const result = reporter.replaceRootDirInPath(
         "mockedRoot",
-        "<rootDir>/test/reporter.html"
+        "<rootDir>/test/reporter.md"
       );
 
       expect(result).toContain("mockedRoot");
@@ -335,26 +300,26 @@ describe("HTMLReporter", () => {
     });
 
     it("should simply return the file path if no <rootDir> is present", () => {
-      const reporter = new HTMLReporter({
+      const reporter = new MarkdownReporter({
         testData: mockedJestResponseSingleTestResult,
         options: {},
       });
       const result = reporter.replaceRootDirInPath(
         "mockedRoot",
-        "test/reporter.html"
+        "test/reporter.md"
       );
 
-      expect(result).toBe("test/reporter.html");
+      expect(result).toBe("test/reporter.md");
     });
 
     it("should be able to handle cases where root is not defined", () => {
-      const reporter = new HTMLReporter({
+      const reporter = new MarkdownReporter({
         testData: mockedJestResponseSingleTestResult,
         options: {},
       });
-      const result = reporter.replaceRootDirInPath(null, "test/reporter.html");
+      const result = reporter.replaceRootDirInPath(null, "test/reporter.md");
 
-      expect(result).toBe("test/reporter.html");
+      expect(result).toBe("test/reporter.md");
     });
   });
 });

@@ -1,7 +1,7 @@
 import fs from "fs";
 import sinon, { SinonStub } from "sinon";
 
-import JestHTMLReporter from "../src";
+import JestMarkdownReporter from "../src";
 import {
   mockedFullReportOutput,
   mockedJestGlobalConfig,
@@ -26,7 +26,7 @@ describe("index", () => {
 
     // Trigger the reporter as a testResultsProcessor
     // @ts-ignore
-    const testResultsProcessorOutput = await JestHTMLReporter(input, {});
+    const testResultsProcessorOutput = await JestMarkdownReporter(input, {});
     expect(testResultsProcessorOutput).toEqual(input);
   });
 });

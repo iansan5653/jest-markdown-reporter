@@ -2,17 +2,16 @@ import { ConsoleBuffer } from "@jest/console";
 import { Config } from "@jest/types";
 import { AggregatedResult } from "@jest/test-result";
 
-export interface JestHTMLReporterProps {
+export interface JestMarkdownReporterProps {
   testData: AggregatedResult;
-  options: IJestHTMLReporterConfigOptions;
+  options: JestMarkdownReporterConfigurationOptions;
   jestConfig?: Config.GlobalConfig;
-  consoleLogs?: IJestHTMLReporterConsole[];
+  consoleLogs?: JestMarkdownReporterConsole[];
 }
 
-export type IJestHTMLReporterConfigOptions = {
+export type JestMarkdownReporterConfigurationOptions = {
   append?: boolean;
   boilerplate?: string;
-  customScriptPath?: string;
   dateFormat?: string;
   executionTimeWarningThreshold?: number;
   includeConsoleLog?: boolean;
@@ -22,73 +21,64 @@ export type IJestHTMLReporterConfigOptions = {
   logo?: string;
   outputPath?: string;
   pageTitle?: string;
-  sort?: JestHTMLReporterSortType;
+  sort?: JestMarkdownReporterSortType;
   statusIgnoreFilter?: string;
   styleOverridePath?: string;
-  theme?: string;
-  useCssFile?: boolean;
 };
 
-export interface IJestHTMLReporterConfigOption<T> {
+export interface JestMarkdownReporterConfigOption<T> {
   environmentVariable: string;
   configValue?: T;
   defaultValue: T;
 }
 
-export interface IJestHTMLReporterConfig {
-  append: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["append"]
+export interface JestMarkdownReporterConfig {
+  append: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["append"]
   >;
-  boilerplate: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["boilerplate"]
+  boilerplate: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["boilerplate"]
   >;
-  customScriptPath: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["customScriptPath"]
+  dateFormat: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["dateFormat"]
   >;
-  dateFormat: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["dateFormat"]
+  executionTimeWarningThreshold: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["executionTimeWarningThreshold"]
   >;
-  executionTimeWarningThreshold: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["executionTimeWarningThreshold"]
+  includeConsoleLog: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["includeConsoleLog"]
   >;
-  includeConsoleLog: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["includeConsoleLog"]
+  includeFailureMsg: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["includeFailureMsg"]
   >;
-  includeFailureMsg: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["includeFailureMsg"]
+  includeSuiteFailure: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["includeSuiteFailure"]
   >;
-  includeSuiteFailure: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["includeSuiteFailure"]
+  includeObsoleteSnapshots: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["includeObsoleteSnapshots"]
   >;
-  includeObsoleteSnapshots: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["includeObsoleteSnapshots"]
+  logo: JestMarkdownReporterConfigOption<JestMarkdownReporterConfigurationOptions["logo"]>;
+  outputPath: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["outputPath"]
   >;
-  logo: IJestHTMLReporterConfigOption<IJestHTMLReporterConfigOptions["logo"]>;
-  outputPath: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["outputPath"]
+  pageTitle: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["pageTitle"]
   >;
-  pageTitle: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["pageTitle"]
+  sort: JestMarkdownReporterConfigOption<JestMarkdownReporterConfigurationOptions["sort"]>;
+  statusIgnoreFilter: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["statusIgnoreFilter"]
   >;
-  sort: IJestHTMLReporterConfigOption<IJestHTMLReporterConfigOptions["sort"]>;
-  statusIgnoreFilter: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["statusIgnoreFilter"]
-  >;
-  styleOverridePath: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["styleOverridePath"]
-  >;
-  theme: IJestHTMLReporterConfigOption<IJestHTMLReporterConfigOptions["theme"]>;
-  useCssFile: IJestHTMLReporterConfigOption<
-    IJestHTMLReporterConfigOptions["useCssFile"]
+  styleOverridePath: JestMarkdownReporterConfigOption<
+    JestMarkdownReporterConfigurationOptions["styleOverridePath"]
   >;
 }
 
-export interface IJestHTMLReporterConsole {
+export interface JestMarkdownReporterConsole {
   filePath: string;
   logs: ConsoleBuffer;
 }
 
-export type JestHTMLReporterSortType =
+export type JestMarkdownReporterSortType =
   | "status"
   | "executiondesc"
   | "executionasc"

@@ -66,7 +66,6 @@ Please note that all configuration properties are optional.
 | Property | Type | Description | Default |
 | --- | --- | --- | --- |
 | `append` | `BOOLEAN` | If set to true, new test results will be appended to the existing test report | `false` |
-| `boilerplate` | `STRING` | The path to a boilerplate file that should be used to render the body of the test results into. `{jestmarkdownreporter-content}` within the boilerplate will be replaced with the test results | `null` |
 | `dateFormat` | `STRING` | The format in which date/time should be formatted in the test report. <!-- Have a look in the [documentation](https://github.com/Hargne/jest-html-reporter/wiki/Date-Format) for the available date format variables. --> | `"yyyy-mm-dd HH:MM:ss"` |
 | `executionTimeWarningThreshold` | `NUMBER` | The threshold for test execution time (in seconds) in each test suite that will render a warning on the report page. 5 seconds is the default timeout in Jest. | `5` |
 | `includeConsoleLog` | `BOOLEAN` | If set to true, this will output all triggered console logs for each test suite. Please note that you have to run Jest together with `--verbose=false` in order to have Jest catch any logs during the tests. | `false` |

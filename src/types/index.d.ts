@@ -11,7 +11,6 @@ export interface JestMarkdownReporterProps {
 
 export type JestMarkdownReporterConfigurationOptions = {
   append?: boolean;
-  boilerplate?: string;
   dateFormat?: string;
   executionTimeWarningThreshold?: number;
   includeConsoleLog?: boolean;
@@ -35,9 +34,6 @@ export interface JestMarkdownReporterConfigOption<T> {
 export interface JestMarkdownReporterConfig {
   append: JestMarkdownReporterConfigOption<
     JestMarkdownReporterConfigurationOptions["append"]
-  >;
-  boilerplate: JestMarkdownReporterConfigOption<
-    JestMarkdownReporterConfigurationOptions["boilerplate"]
   >;
   dateFormat: JestMarkdownReporterConfigOption<
     JestMarkdownReporterConfigurationOptions["dateFormat"]

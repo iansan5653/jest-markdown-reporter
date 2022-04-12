@@ -12,7 +12,6 @@ import {
   JestMarkdownReporterSortType,
 } from "src/types";
 import stripAnsi from "strip-ansi";
-import xmlbuilder, { XMLElement } from "xmlbuilder";
 
 import sorting from "./sorting";
 
@@ -51,122 +50,37 @@ class MarkdownReporter {
     }
   }
 
-  public async renderTestReport() {
-    // Generate the content of the test report
-    const reportContent = await this.renderTestReportContent();
-
-    // --
-
-    // Boilerplate Option
-    if (!!this.getConfigValue("boilerplate")) {
-      const boilerplateContent = await fs.readFileSync(
-        this.getConfigValue("boilerplate") as string,
-        "utf8"
-      );
-      return boilerplateContent.replace(
-        "{jestmarkdownreporter-content}",
-        reportContent && reportContent.toString()
-      );
-    }
-
-    // --
-
-    // Create HTML and apply reporter content
-    const report = xmlbuilder.create({ html: {} });
-    const headTag = report.ele("head");
-    headTag.ele("meta", { charset: "utf-8" });
-    headTag.ele("title", {}, this.getConfigValue("pageTitle"));
-
-    const reportBody = report.ele("body");
-    // Add the test report to the body
-    if (reportContent) {
-      reportBody.raw(reportContent.toString());
-    }
-    return report;
-  }
-
-  public renderTestSuiteInfo(parent: XMLElement, suite: TestResult) {
-    const suiteInfo = parent.ele("div", { class: "suite-info" });
+  public renderTestSuiteInfo(suite: TestResult) {
     // Suite Path
-    suiteInfo.ele("div", { class: "suite-path" }, suite.testFilePath);
+    let result = `\n${suite.testFilePath}`
     // Suite execution time
     const executionTime = (suite.perfStats.end - suite.perfStats.start) / 1000;
-    suiteInfo.ele(
-      "div",
-      {
-        class: `suite-time${
-          executionTime >
-          (this.getConfigValue("executionTimeWarningThreshold") as number)
-            ? " warn"
-            : ""
-        }`,
-      },
-      `${executionTime}s`
-    );
+    const icon = executionTime > (this.getConfigValue('executionTimeWarningThreshold')) ? "⚠️ " : ""
+    result += `\n${icon}${executionTime}`
+    return result
   }
 
-  public renderSuiteFailure(parent: XMLElement, suite: TestResult, i: number) {
-    const suiteContainer = parent.ele("div", {
-      id: `suite-${i + 1}`,
-      class: "suite-container",
-    });
-
+  public renderSuiteFailure(suite: TestResult, i: number) {
     // Suite Information
-    this.renderTestSuiteInfo(suiteContainer, suite);
-
-    // Test Container
-    const suiteTests = suiteContainer.ele("div", {
-      class: "suite-tests",
-    });
-
-    const testResult = suiteTests.ele("div", {
-      class: "test-result failed",
-    });
-
-    const failureMsgDiv = testResult.ele(
-      "div",
-      {
-        class: "failureMessages suiteFailure",
-      },
-      " "
-    );
-    failureMsgDiv.ele(
-      "pre",
-      { class: "failureMsg" },
-      this.sanitizeOutput(suite.failureMessage)
-    );
+    return `\n${this.renderTestSuiteInfo(suite)}\n\n❌ ${this.sanitizeOutput(suite.failureMessage)}`;
   }
 
-  public async renderTestReportContent() {
+  public async renderTestReport() {
     try {
       if (!this.testData || Object.entries(this.testData).length === 0) {
         throw Error("No test data provided");
       }
 
-      // HTML Body
-      const reportBody: XMLElement = xmlbuilder.begin().element("div", {
-        id: "jesthtml-content",
-      });
+      let report = ""
 
-      /**
-       * Page Header
-       */
-      const header = reportBody.ele("header");
-      // Page Title
-      header.ele("h1", { id: "title" }, this.getConfigValue("pageTitle"));
+      report += `# ${this.getConfigValue("pageTitle")}`;
 
       // Logo
       const logo = this.getConfigValue("logo");
       if (logo) {
-        header.ele("img", { id: "logo", src: logo });
+        report += `\n\n![](${logo})`;
       }
 
-      /**
-       * Meta-Data
-       */
-      const metaDataContainer = reportBody.ele("div", {
-        id: "metadata-container",
-      });
       // Timestamp
       if (this.testData.startTime && !isNaN(this.testData.startTime)) {
         const timestamp = new Date(this.testData.startTime);
@@ -175,98 +89,36 @@ class MarkdownReporter {
             timestamp,
             this.getConfigValue("dateFormat") as string
           );
-          metaDataContainer.ele(
-            "div",
-            { id: "timestamp" },
-            `Started: ${formattedTimestamp}`
-          );
+
+          report += `\n\nStarted: <time datetime="${timestamp.toISOString()}">${formattedTimestamp}</time>`
         }
       }
-
+      
       // Summary
-      const summaryContainer = metaDataContainer.ele("div", { id: "summary" });
-      // Suite Summary
-      const suiteSummary = summaryContainer.ele("div", { id: "suite-summary" });
-      suiteSummary.ele(
-        "div",
-        { class: "summary-total" },
-        `Suites (${this.testData.numTotalTestSuites})`
-      );
-      suiteSummary.ele(
-        "div",
-        {
-          class: `summary-passed${
-            this.testData.numPassedTestSuites === 0 ? " summary-empty" : ""
-          }`,
-        },
-        `${this.testData.numPassedTestSuites} passed`
-      );
-      suiteSummary.ele(
-        "div",
-        {
-          class: `summary-failed${
-            this.testData.numFailedTestSuites === 0 ? " summary-empty" : ""
-          }`,
-        },
-        `${this.testData.numFailedTestSuites} failed`
-      );
-      suiteSummary.ele(
-        "div",
-        {
-          class: `summary-pending${
-            this.testData.numPendingTestSuites === 0 ? " summary-empty" : ""
-          }`,
-        },
-        `${this.testData.numPendingTestSuites} pending`
-      );
+      report += `\n\n## Summary`
+      report += `\n\n### Suites
+
+ - ${this.testData.numPassedTestSuites > 0 ? '✅' : ''} Passed: ${this.testData.numPassedTestSuites}
+ - ${this.testData.numFailedTestSuites > 0 ? '❌' : ''} Failed: ${this.testData.numFailedTestSuites}
+ - ${this.testData.numPendingTestSuites > 0 ? '🕑' : ''} Pending: ${this.testData.numPendingTestSuites}
+ - **Total**: ${this.testData.numTotalTestSuites}
+`
 
       if (
         this.testData.snapshot &&
         this.testData.snapshot.unchecked > 0 &&
         this.getConfigValue("includeObsoleteSnapshots")
       ) {
-        suiteSummary.ele(
-          "div",
-          {
-            class: "summary-obsolete-snapshots",
-          },
-          `${this.testData.snapshot.unchecked} obsolete snapshots`
-        );
+        report += `\n\n### Snapshots\n\n${this.testData.snapshot.unchecked} obsolete snapshots`
       }
-      // Test Summary
-      const testSummary = summaryContainer.ele("div", { id: "test-summary" });
-      testSummary.ele(
-        "div",
-        { class: "summary-total" },
-        `Tests (${this.testData.numTotalTests})`
-      );
-      testSummary.ele(
-        "div",
-        {
-          class: `summary-passed${
-            this.testData.numPassedTests === 0 ? " summary-empty" : ""
-          }`,
-        },
-        `${this.testData.numPassedTests} passed`
-      );
-      testSummary.ele(
-        "div",
-        {
-          class: `summary-failed${
-            this.testData.numFailedTests === 0 ? " summary-empty" : ""
-          }`,
-        },
-        `${this.testData.numFailedTests} failed`
-      );
-      testSummary.ele(
-        "div",
-        {
-          class: `summary-pending${
-            this.testData.numPendingTests === 0 ? " summary-empty" : ""
-          }`,
-        },
-        `${this.testData.numPendingTests} pending`
-      );
+
+      report += `\n\n### Tests
+
+ - ${this.testData.numPassedTests > 0 ? '✅' : ''} Passed: ${this.testData.numPassedTests}
+ - ${this.testData.numFailedTests > 0 ? '❌' : ''} Failed: ${this.testData.numFailedTests}
+ - ${this.testData.numPendingTests > 0 ? '🕑' : ''} Pending: ${this.testData.numPendingTests}
+ - **Total**: ${this.testData.numTotalTests}
+`
 
       /**
        * Apply any given sorting method to the test results
@@ -301,53 +153,25 @@ class MarkdownReporter {
               suite.failureMessage &&
               this.getConfigValue("includeSuiteFailure")
             ) {
-              this.renderSuiteFailure(reportBody, suite, i);
+              report += this.renderSuiteFailure(suite, i);
             }
             return;
           }
 
-          const suiteContainer = reportBody.ele("div", {
-            id: `suite-${i + 1}`,
-            class: "suite-container",
-          });
-
           // Suite Information
-          this.renderTestSuiteInfo(suiteContainer, suite);
-
-          // Test Container
-          const suiteTests = suiteContainer.ele("div", {
-            class: "suite-tests",
-          });
+          report += this.renderTestSuiteInfo(suite);
 
           // Test Results
           suite.testResults
             // Filter out the test results with statuses that equals the statusIgnoreFilter
             .filter((s) => !ignoredStatuses.includes(s.status))
             .forEach(async (test) => {
-              const testResult = suiteTests.ele("div", {
-                class: `test-result ${test.status}`,
-              });
+              report += `\n\n## ${test.title}\n\n**${test.status}** in **${test.duration / 1000}s**`
 
-              // Test Info
-              const testInfo = testResult.ele("div", { class: "test-info" });
               // Suite Name
-              testInfo.ele(
-                "div",
-                { class: "test-suitename" },
-                test.ancestorTitles && test.ancestorTitles.length > 0
-                  ? test.ancestorTitles.join(" > ")
-                  : " "
-              );
-              // Test Title
-              testInfo.ele("div", { class: "test-title" }, test.title);
-              // Test Status
-              testInfo.ele("div", { class: "test-status" }, test.status);
-              // Test Duration
-              testInfo.ele(
-                "div",
-                { class: "test-duration" },
-                `${test.duration / 1000}s`
-              );
+              report += test.ancestorTitles && test.ancestorTitles.length > 0
+              ? `\n\n> ${test.ancestorTitles.join(" > ")}`
+                : ""
 
               // Test Failure Messages
               if (
@@ -355,20 +179,7 @@ class MarkdownReporter {
                 test.failureMessages.length > 0 &&
                 this.getConfigValue("includeFailureMsg")
               ) {
-                const failureMsgDiv = testResult.ele(
-                  "div",
-                  {
-                    class: "failureMessages",
-                  },
-                  " "
-                );
-                test.failureMessages.forEach((failureMsg) => {
-                  failureMsgDiv.ele(
-                    "pre",
-                    { class: "failureMsg" },
-                    this.sanitizeOutput(failureMsg)
-                  );
-                });
+                report += `\n${test.failureMessages.map(msg => `\n - ${this.sanitizeOutput(msg)}`)}`
               }
             });
 
@@ -378,7 +189,7 @@ class MarkdownReporter {
             this.consoleLogList.length > 0 &&
             this.getConfigValue("includeConsoleLog")
           ) {
-            this.renderSuiteConsoleLogs(suite, suiteContainer);
+            report += this.renderSuiteConsoleLogs(suite);
           }
 
           if (
@@ -386,77 +197,35 @@ class MarkdownReporter {
             suite.snapshot.unchecked > 0 &&
             this.getConfigValue("includeObsoleteSnapshots")
           ) {
-            this.renderSuiteObsoleteSnapshots(suiteContainer, suite);
+            report += this.renderSuiteObsoleteSnapshots(suite);
           }
         });
       }
 
-      return reportBody;
+      return report;
     } catch (e) {
       this.logMessage("error", e);
     }
   }
 
   public renderSuiteConsoleLogs(
-    suite: TestResult,
-    suiteContainer: xmlbuilder.XMLElement
+    suite: TestResult
   ) {
     // Filter out the logs for this test file path
     const filteredConsoleLogs = this.consoleLogList.find(
       (logs) => logs.filePath === suite.testFilePath
     );
+
     if (filteredConsoleLogs && filteredConsoleLogs.logs.length > 0) {
-      // Console Log Container
-      const consoleLogContainer = suiteContainer.ele("div", {
-        class: "suite-consolelog",
-      });
-      // Console Log Header
-      consoleLogContainer.ele(
-        "div",
-        { class: "suite-consolelog-header" },
-        "Console Log"
-      );
-      // Apply the logs to the body
-      filteredConsoleLogs.logs.forEach((log) => {
-        const logElement = consoleLogContainer.ele("div", {
-          class: "suite-consolelog-item",
-        });
-        logElement.ele(
-          "pre",
-          { class: "suite-consolelog-item-origin" },
-          this.sanitizeOutput(log.origin)
-        );
-        logElement.ele(
-          "pre",
-          { class: "suite-consolelog-item-message" },
-          this.sanitizeOutput(log.message)
-        );
-      });
+      return `\n\n\`\`\`\n${filteredConsoleLogs.logs.map(log => `\n${this.sanitizeOutput(log.origin)}: ${this.sanitizeOutput(log.message)}`)}\n\`\`\``
     }
+    return ""
   }
 
   public renderSuiteObsoleteSnapshots(
-    suiteContainer: xmlbuilder.XMLElement,
     suite: TestResult
   ) {
-    // Obsolete snapshots Container
-    const snapshotContainer = suiteContainer.ele("div", {
-      class: "suite-obsolete-snapshots",
-    });
-    // Obsolete snapshots Header
-    snapshotContainer.ele(
-      "div",
-      { class: "suite-obsolete-snapshots-header" },
-      "Obsolete snapshots"
-    );
-    const keysElement = snapshotContainer.ele("div", {
-      class: "suite-obsolete-snapshots-item",
-    });
-    keysElement.ele(
-      "pre",
-      { class: "suite-obsolete-snapshots-item-message" },
-      suite.snapshot.uncheckedKeys.join("\n")
-    );
+    return `\n\n\`\`\`\n${suite.snapshot.uncheckedKeys.join("\n")}\n\`\`\``
   }
 
   /**
@@ -468,7 +237,6 @@ class MarkdownReporter {
     // Extract config values and make sure that the config object actually exist
     const {
       append,
-      boilerplate,
       dateFormat,
       executionTimeWarningThreshold,
       logo,
@@ -488,11 +256,6 @@ class MarkdownReporter {
         defaultValue: false,
         environmentVariable: "JEST_MARKDOWN_REPORTER_APPEND",
         configValue: append,
-      },
-      boilerplate: {
-        defaultValue: null,
-        environmentVariable: "JEST_MARKDOWN_REPORTER_BOILERPLATE",
-        configValue: boilerplate,
       },
       dateFormat: {
         defaultValue: "yyyy-mm-dd HH:MM:ss",

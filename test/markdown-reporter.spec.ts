@@ -23,11 +23,12 @@ describe("MarkdownReporter", () => {
     });
   });
 
-  describe("renderTestReportContent", () => {
+  describe("renderTestReport", () => {
     it("should cast an error if no test data was provided", async () => {
       expect.assertions(1);
+      // @ts-ignore
       const reporter = new MarkdownReporter({});
-      expect(await reporter.renderTestReportContent()).toBeUndefined();
+      expect(await reporter.renderTestReport()).toBeUndefined();
     });
   });
 
@@ -39,7 +40,7 @@ describe("MarkdownReporter", () => {
         options: {},
       });
       const reportContent = (
-        await reporter.renderTestReportContent()
+        await reporter.renderTestReport()
       ).toString();
 
       expect(
@@ -92,7 +93,7 @@ describe("MarkdownReporter", () => {
           ],
         });
         const reportContent = (
-          await reporter.renderTestReportContent()
+          await reporter.renderTestReport()
         ).toString();
         expect(
           reportContent.indexOf(
@@ -120,7 +121,7 @@ describe("MarkdownReporter", () => {
           ],
         });
         const reportContent = (
-          await reporter.renderTestReportContent()
+          await reporter.renderTestReport()
         ).toString();
         expect(
           reportContent.indexOf(
@@ -139,7 +140,7 @@ describe("MarkdownReporter", () => {
           },
         });
         const reportContent = (
-          await reporter.renderTestReportContent()
+          await reporter.renderTestReport()
         ).toString();
 
         expect(reportContent.indexOf('✅')).toBe(-1);
@@ -155,7 +156,7 @@ describe("MarkdownReporter", () => {
           },
         });
         const reportContent = (
-          await reporter.renderTestReportContent()
+          await reporter.renderTestReport()
         ).toString();
 
         expect(
@@ -173,7 +174,7 @@ describe("MarkdownReporter", () => {
           },
         });
         const reportContent = (
-          await reporter.renderTestReportContent()
+          await reporter.renderTestReport()
         ).toString();
 
         expect(
@@ -191,7 +192,7 @@ describe("MarkdownReporter", () => {
           },
         });
         const reportContent = (
-          await reporter.renderTestReportContent()
+          await reporter.renderTestReport()
         ).toString();
 
         expect(
@@ -212,7 +213,7 @@ describe("MarkdownReporter", () => {
           },
         });
         const reportContent = (
-          await reporter.renderTestReportContent()
+          await reporter.renderTestReport()
         ).toString();
 
         expect(

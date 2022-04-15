@@ -52,7 +52,7 @@ class MarkdownReporter {
 
   public renderTestSuiteInfo(suite: TestResult) {
     // Suite Path
-    let result = `\n${suite.testFilePath}`
+    let result = `\n# ${suite.testFilePath}`
     // Suite execution time
     const executionTime = (suite.perfStats.end - suite.perfStats.start) / 1000;
     const icon = executionTime > (this.getConfigValue('executionTimeWarningThreshold')) ? "⚠️ " : ""
@@ -166,12 +166,7 @@ class MarkdownReporter {
             // Filter out the test results with statuses that equals the statusIgnoreFilter
             .filter((s) => !ignoredStatuses.includes(s.status))
             .forEach(async (test) => {
-              report += `\n\n## ${test.title}\n\n**${test.status}** in **${test.duration / 1000}s**`
-
-              // Suite Name
-              report += test.ancestorTitles && test.ancestorTitles.length > 0
-              ? `\n\n> ${test.ancestorTitles.join(" > ")}`
-                : ""
+              report += `\n\n### ${test.ancestorTitles.join(' > ') ?? ''} ${test.title}\n\n**${test.status}** in **${test.duration / 1000}s**`
 
               // Test Failure Messages
               if (
@@ -179,7 +174,7 @@ class MarkdownReporter {
                 test.failureMessages.length > 0 &&
                 this.getConfigValue("includeFailureMsg")
               ) {
-                report += `\n${test.failureMessages.map(msg => `\n - ${this.sanitizeOutput(msg)}`)}`
+                report += `\n${test.failureMessages.map(msg => `\n\`\`\`\n${this.sanitizeOutput(msg)}\n\`\`\``)}`
               }
             });
 
@@ -443,7 +438,7 @@ class MarkdownReporter {
       error: "\x1b[31m%s\x1b[0m",
     };
     const logColor = !logTypes[type] ? logTypes.default : logTypes[type];
-    const logMsg = `jest-html-reporter >> ${message}`;
+    const logMsg = `jest-markdown-reporter >> ${message}`;
     // Let's log messages to the terminal only if we aren't testing this very module
     if (process.env.JEST_WORKER_ID === undefined) {
       console.log(logColor, logMsg);
